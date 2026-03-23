@@ -1,23 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Pro-Safe Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro-Safe Safety Monitoring Wall</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #fff;
+        }
+        header {
+            background: #1e293b;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            padding: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .card h2 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .card p {
+            margin: 10px 0 0;
+            color: #94a3b8;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: #22c55e;
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #16a34a;
+        }
+    </style>
 </head>
 <body>
-  <h1>Pro-Safe Admin Portal</h1>
 
-  <ul>
-    <li>
-      <a href="admin-site-info-page.html">
-        Admin Site Info Page
-      </a>
-    </li>
-    <li>
-      <a href="site-config.html">
-        Site Config Page
-      </a>
-    </li>
-  </ul>
+<header>
+    🚨 Pro-Safe Safety Monitoring Wall
+</header>
+
+<div class="container">
+    <div class="grid">
+        
+        <div class="card">
+            <h2>📹 Live Monitoring</h2>
+            <p>View real-time surveillance feeds</p>
+            <a href="Safety%20services%20wall.html" class="btn">Open</a>
+        </div>
+
+        <div class="card">
+            <h2>⚠️ Alerts</h2>
+            <p>Recent safety alerts and incidents</p>
+            <a href="#" class="btn">Coming Soon</a>
+        </div>
+
+        <div class="card">
+            <h2>📊 Reports</h2>
+            <p>Daily and weekly safety reports</p>
+            <a href="#" class="btn">Coming Soon</a>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ Settings</h2>
+            <p>System configuration and controls</p>
+            <a href="#" class="btn">Coming Soon</a>
+        </div>
+
+    </div>
+</div>
+
 </body>
 </html>
