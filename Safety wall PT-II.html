@@ -681,6 +681,9 @@
           return raw ? JSON.parse(raw) : null;
         } catch (e) { return null; }
       }
+      function slotHasMediaUrl(data) {
+        return data && String(data.url || '').trim().length > 0;
+      }
       function renderMediaSlot(slotId, data) {
         var slot = document.getElementById(slotId);
         if (!slot) return;
@@ -700,7 +703,15 @@
           html += '</div>';
           slot.innerHTML = html;
           var video = slot.querySelector('video');
-          if (video) { video.pause(); try { video.currentTime = 0; } catch (e) {} }
+          if (video) {
+            video.pause();
+            try { video.currentTime = 0; } catch (e) {}
+            video.addEventListener('error', function once() {
+              video.removeEventListener('error', once);
+              var hint = 'Put each .mp4 in the same folder as this HTML (or use ?mediaBase=media/ for a media subfolder). Names must match the defaults in the script. Git LFS: run git lfs pull.';
+              slot.innerHTML = '<div class="media-placeholder"><span class="slot-label">Could not load video</span><span class="slot-hint">' + escapeHtml(hint) + '</span></div>';
+            });
+          }
         } else {
           var n = slotId.replace('mediaSlot', '');
           slot.innerHTML = '<div class="media-placeholder"><span class="slot-label">Video / media slot ' + n + '</span><span class="slot-hint">Assign a stream or media URL to display here</span></div>';
@@ -710,8 +721,10 @@
       var slotKeys = ['safetyWallSlot1', 'safetyWallSlot2', 'safetyWallSlot3', 'safetyWallSlot4'];
       var slotIds = ['mediaSlot1', 'mediaSlot2', 'mediaSlot3', 'mediaSlot4'];
       var slotIndices = [1, 2, 3, 4];
+      // Default '' = same folder as this HTML (matches github.com/.../Pro-Safe-Safety-Monitoring-Wall root layout).
+      // Use ?mediaBase=media/ if your .mp4 files live in a subfolder named media.
       function resolveMediaBasePath(up) {
-        if (!up || !up.has('mediaBase')) return 'media/';
+        if (!up || !up.has('mediaBase')) return '';
         var base = up.get('mediaBase') || '';
         if (!base) return '';
         return /\/$/.test(base) ? base : base + '/';
@@ -726,11 +739,11 @@
         var url = urlParams.get('slot' + idx + 'url') || urlParams.get('slot' + idx);
         var type = (urlParams.get('slot' + idx + 'type') || 'video').toLowerCase();
         var data = getSlotData(slotKeys[i]);
-        if (url && !data) data = { type: type, url: url, title: '' };
-        if (idx === 1 && !data) data = { type: 'video', url: defaultSlot1Video, title: '' };
-        if (idx === 2 && !data) data = { type: 'video', url: defaultSlot2Video, title: '' };
-        if (idx === 3 && !data) data = { type: 'video', url: defaultSlot3Video, title: '' };
-        if (idx === 4 && !data) data = { type: 'video', url: defaultSlot4Video, title: '' };
+        if (url && !slotHasMediaUrl(data)) data = { type: type, url: url, title: '' };
+        if (idx === 1 && !slotHasMediaUrl(data)) data = { type: 'video', url: defaultSlot1Video, title: '' };
+        if (idx === 2 && !slotHasMediaUrl(data)) data = { type: 'video', url: defaultSlot2Video, title: '' };
+        if (idx === 3 && !slotHasMediaUrl(data)) data = { type: 'video', url: defaultSlot3Video, title: '' };
+        if (idx === 4 && !slotHasMediaUrl(data)) data = { type: 'video', url: defaultSlot4Video, title: '' };
         renderMediaSlot(slotIds[i], data);
       }
       var p1 = getSlotData('panel1Data'), p2 = getSlotData('panel2Data');
