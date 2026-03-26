@@ -847,7 +847,8 @@
         }
       }
       var urlParams = new URLSearchParams(window.location.search);
-      var slotKeys = ['safetyWallSlot1', 'safetyWallSlot2'];
+      /* PT-I/II use safetyWallSlot* for videos; PT-III uses its own keys so PNG defaults in media/ are not overridden. */
+      var slotKeys = ['safetyWallPt3Slot1', 'safetyWallPt3Slot2'];
       var slotIds = ['mediaSlot1', 'mediaSlot2'];
       var slotIndices = [1, 2];
       var defaultSlot1Url = window.resolveProsafeRepoAsset('media/safety-wall-slot1.png');
@@ -872,7 +873,7 @@
         },
         setSlot: function(slotIndex, data) {
           if (slotIndex !== 1 && slotIndex !== 2) return;
-          var key = 'safetyWallSlot' + slotIndex;
+          var key = 'safetyWallPt3Slot' + slotIndex;
           try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) {}
           renderMediaSlot('mediaSlot' + slotIndex, data);
           if (typeof window.refreshPastFutureThumbnails === 'function') window.refreshPastFutureThumbnails(slotIndex);
