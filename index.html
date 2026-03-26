@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Safe Monitoring Wall</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #38bdf8;
+        }
+
+        p {
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            width: 80%;
+            max-width: 900px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s ease;
+            border: 1px solid #334155;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: #334155;
+            border-color: #38bdf8;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card span {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Pro Safe Monitoring Wall</h1>
+    <p>Select a dashboard</p>
+
+    <div class="grid">
+
+        <a class="card" href="Safety services wall.html">
+            <h2>Safety Services Wall</h2>
+            <span>Main monitoring dashboard</span>
+        </a>
+
+        <a class="card" href="Safety wall PT-I.html">
+            <h2>PT - I</h2>
+            <span>Zone / Camera Group 1</span>
+        </a>
+
+        <a class="card" href="Safety wall PT-II.html">
+            <h2>PT - II</h2>
+            <span>Zone / Camera Group 2</span>
+        </a>
+
+        <a class="card" href="Safety wall PT-III.html">
+            <h2>PT - III</h2>
+            <span>Zone / Camera Group 3</span>
+        </a>
+
+    </div>
+
+    <footer>
+        © 2026 Pro Safe | Safety Monitoring System
+    </footer>
+
+</body>
+</html>
