@@ -522,7 +522,7 @@
       });
     })();
   </script>
-  <!-- resolveProsafeMediaUrl: single-file names next to this HTML (encoded). resolveProsafeRepoAsset: repo paths e.g. media/slot1.png for GitHub Pages. Optional ?mediaBase= for videos. -->
+  <!-- resolveProsafeMediaUrl: single-file names next to this HTML (encoded). resolveProsafeRepoAsset: relative to this page. resolveProsafeSlotImageUrl: on *.github.io uses raw.githubusercontent.com so PNGs load from the repo. Overrides: ?imageBase=URL/  ?ghRepo=user/repo  ?imageBranch=main  or window.PROSAFE_GITHUB_REPO / PROSAFE_GITHUB_BRANCH -->
   <script>
     (function() {
       window.resolveProsafeMediaUrl = function(filename, mediaBaseOverride) {
@@ -541,14 +541,48 @@
         if (!p) return '';
         return new URL(p, window.location.href).href;
       };
+      window.resolveProsafeSlotImageUrl = function(relativePath) {
+        var p = String(relativePath || '').trim().replace(/^\/+/, '');
+        if (!p) return '';
+        var params = new URLSearchParams(window.location.search);
+        var imageBase = (params.get('imageBase') || '').trim();
+        if (imageBase) {
+          var norm = imageBase.replace(/\/?$/, '/');
+          return norm + p.split('/').map(function(seg) { return encodeURIComponent(seg); }).join('/');
+        }
+        var branch = (params.get('imageBranch') || (typeof window.PROSAFE_GITHUB_BRANCH === 'string' && window.PROSAFE_GITHUB_BRANCH) || 'main').trim() || 'main';
+        var ghRepoParam = (params.get('ghRepo') || (typeof window.PROSAFE_GITHUB_REPO === 'string' && window.PROSAFE_GITHUB_REPO) || '').trim();
+        var loc = window.location;
+        var user = '';
+        var repo = '';
+        if (ghRepoParam.indexOf('/') >= 0) {
+          var slash = ghRepoParam.indexOf('/');
+          user = ghRepoParam.slice(0, slash);
+          repo = ghRepoParam.slice(slash + 1);
+        } else if (/\.github\.io$/i.test(loc.hostname)) {
+          user = loc.hostname.replace(/\.github\.io$/i, '');
+          var segments = loc.pathname.split('/').filter(Boolean).map(function(s) {
+            try { return decodeURIComponent(s); } catch (e) { return s; }
+          });
+          var first = segments[0] || '';
+          if (first && !/\.html?$/i.test(first)) {
+            repo = first;
+          }
+        }
+        if (user && repo) {
+          var pathPart = p.split('/').map(function(seg) { return encodeURIComponent(seg); }).join('/');
+          return 'https://raw.githubusercontent.com/' + encodeURIComponent(user) + '/' + encodeURIComponent(repo) + '/' + encodeURIComponent(branch) + '/' + pathPart;
+        }
+        return window.resolveProsafeRepoAsset(p);
+      };
     })();
   </script>
   <script>
     /* Git: commit images under ./media/ (see filenames below). Optional: set window.pastFutureImageThumbnails[slot] = [{ url, label }, ...]. Use [] to use video frame strip for that slot. */
     (function initPastFutureImageThumbnailDefaults() {
       window.pastFutureImageThumbnails = window.pastFutureImageThumbnails || {};
-      var screenshotUrl1 = window.resolveProsafeRepoAsset('media/safety-wall-slot1.png');
-      var screenshotUrl2 = window.resolveProsafeRepoAsset('media/safety-wall-slot2.png');
+      var screenshotUrl1 = window.resolveProsafeSlotImageUrl('media/safety-wall-slot1.png');
+      var screenshotUrl2 = window.resolveProsafeSlotImageUrl('media/safety-wall-slot2.png');
       if (!window.pastFutureImageThumbnails[1]) {
         window.pastFutureImageThumbnails[1] = [
           { url: screenshotUrl1, label: 'Past — checkpoint' },
@@ -851,8 +885,8 @@
       var slotKeys = ['safetyWallPt3Slot1', 'safetyWallPt3Slot2'];
       var slotIds = ['mediaSlot1', 'mediaSlot2'];
       var slotIndices = [1, 2];
-      var defaultSlot1Url = window.resolveProsafeRepoAsset('media/safety-wall-slot1.png');
-      var defaultSlot2Url = window.resolveProsafeRepoAsset('media/safety-wall-slot2.png');
+      var defaultSlot1Url = window.resolveProsafeSlotImageUrl('media/safety-wall-slot1.png');
+      var defaultSlot2Url = window.resolveProsafeSlotImageUrl('media/safety-wall-slot2.png');
       for (var i = 0; i < slotIndices.length; i++) {
         var idx = slotIndices[i];
         var url = urlParams.get('slot' + idx + 'url') || urlParams.get('slot' + idx);
