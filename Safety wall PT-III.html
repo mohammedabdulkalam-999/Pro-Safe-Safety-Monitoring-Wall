@@ -855,6 +855,9 @@
           return raw ? JSON.parse(raw) : null;
         } catch (e) { return null; }
       }
+      function slotHasMediaUrl(data) {
+        return !!(data && String(data.url || '').trim());
+      }
       function renderMediaSlot(slotId, data) {
         var slot = document.getElementById(slotId);
         if (!slot) return;
@@ -875,6 +878,24 @@
           slot.innerHTML = html;
           var video = slot.querySelector('video');
           if (video) { video.pause(); try { video.currentTime = 0; } catch (e) {} }
+          var imgEl = slot.querySelector('img.media-image');
+          if (imgEl && type === 'image' && window.resolveProsafeRepoAsset) {
+            var sn = parseInt(slotId.replace('mediaSlot', ''), 10) || 0;
+            var rel = 'media/safety-wall-slot' + sn + '.png';
+            var pagesUrl = window.resolveProsafeRepoAsset(rel);
+            var rawUrl = window.resolveProsafeSlotImageUrl ? window.resolveProsafeSlotImageUrl(rel) : '';
+            var primary = url;
+            var alternate = '';
+            if (rawUrl && pagesUrl && (primary === rawUrl || primary === pagesUrl)) {
+              alternate = primary === rawUrl ? pagesUrl : rawUrl;
+            }
+            if (alternate) {
+              imgEl.addEventListener('error', function onImgErrOnce() {
+                imgEl.removeEventListener('error', onImgErrOnce);
+                imgEl.src = alternate;
+              });
+            }
+          }
         } else {
           var n = slotId.replace('mediaSlot', '');
           slot.innerHTML = '<div class="media-placeholder"><span class="slot-label">Video / media slot ' + n + '</span><span class="slot-hint">Assign a stream or media URL to display here</span></div>';
@@ -887,22 +908,27 @@
       var slotIndices = [1, 2];
       var defaultSlot1Url = window.resolveProsafeSlotImageUrl('media/safety-wall-slot1.png');
       var defaultSlot2Url = window.resolveProsafeSlotImageUrl('media/safety-wall-slot2.png');
+      function buildSlotData(idx) {
+        var key = slotKeys[idx - 1];
+        var data = getSlotData(key);
+        var qp = urlParams.get('slot' + idx + 'url') || urlParams.get('slot' + idx);
+        var qtype = (urlParams.get('slot' + idx + 'type') || 'video').toLowerCase();
+        if (qp && !slotHasMediaUrl(data)) return { type: qtype, url: String(qp).trim(), title: '' };
+        if (slotHasMediaUrl(data)) return data;
+        if (idx === 1) return { type: 'image', url: defaultSlot1Url, title: '' };
+        if (idx === 2) return { type: 'image', url: defaultSlot2Url, title: '' };
+        return null;
+      }
       for (var i = 0; i < slotIndices.length; i++) {
         var idx = slotIndices[i];
-        var url = urlParams.get('slot' + idx + 'url') || urlParams.get('slot' + idx);
-        var type = (urlParams.get('slot' + idx + 'type') || 'video').toLowerCase();
-        var data = getSlotData(slotKeys[i]);
-        if (url && !data) data = { type: type, url: url, title: '' };
-        if (idx === 1 && !data) data = { type: 'image', url: defaultSlot1Url, title: '' };
-        if (idx === 2 && !data) data = { type: 'image', url: defaultSlot2Url, title: '' };
-        renderMediaSlot(slotIds[i], data);
+        renderMediaSlot(slotIds[i], buildSlotData(idx));
       }
       var p1 = getSlotData('panel1Data'), p2 = getSlotData('panel2Data');
       if (p1) updatePanelBorders('panel1_slot', !!p1.redFlag, !!p1.orangeFlag);
       if (p2) updatePanelBorders('panel2_slot', !!p2.redFlag, !!p2.orangeFlag);
       window.BasecampWallCommunication = {
         loadPanelData: function() {
-          for (var j = 0; j < slotIndices.length; j++) renderMediaSlot(slotIds[j], getSlotData(slotKeys[j]));
+          for (var j = 0; j < slotIndices.length; j++) renderMediaSlot(slotIds[j], buildSlotData(slotIndices[j]));
           if (typeof window.refreshPastFutureThumbnails === 'function') window.refreshPastFutureThumbnails();
         },
         setSlot: function(slotIndex, data) {
