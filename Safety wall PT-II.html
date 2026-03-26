@@ -521,6 +521,22 @@
       });
     })();
   </script>
+  <!-- Same as PT-I: absolute URLs via current page location so videos work on GitHub Pages (project sites / subfolders). Optional ?mediaBase= path or full URL. -->
+  <script>
+    (function() {
+      window.resolveProsafeMediaUrl = function(filename, mediaBaseOverride) {
+        var encoded = encodeURIComponent(filename);
+        var base = (mediaBaseOverride != null && mediaBaseOverride !== '')
+          ? String(mediaBaseOverride).trim()
+          : (new URLSearchParams(window.location.search).get('mediaBase') || '').trim();
+        if (!base) {
+          return new URL(encoded, window.location.href).href;
+        }
+        var normalized = base.replace(/\/?$/, '/');
+        return new URL(normalized + encoded, window.location.href).href;
+      };
+    })();
+  </script>
   <script>
     (function initPastFutureThumbnails() {
       var SLOT_COUNT = 4;
@@ -708,7 +724,7 @@
             try { video.currentTime = 0; } catch (e) {}
             video.addEventListener('error', function once() {
               video.removeEventListener('error', once);
-              var hint = 'Put each .mp4 in the same folder as this HTML (or use ?mediaBase=media/ for a media subfolder). Names must match the defaults in the script. Git LFS: run git lfs pull.';
+              var hint = 'Same folder as this HTML or ?mediaBase=… (see resolveProsafeMediaUrl in PT-I). Match default filenames in the script. Git LFS: git lfs pull.';
               slot.innerHTML = '<div class="media-placeholder"><span class="slot-label">Could not load video</span><span class="slot-hint">' + escapeHtml(hint) + '</span></div>';
             });
           }
@@ -721,19 +737,10 @@
       var slotKeys = ['safetyWallSlot1', 'safetyWallSlot2', 'safetyWallSlot3', 'safetyWallSlot4'];
       var slotIds = ['mediaSlot1', 'mediaSlot2', 'mediaSlot3', 'mediaSlot4'];
       var slotIndices = [1, 2, 3, 4];
-      // Default '' = same folder as this HTML (matches github.com/.../Pro-Safe-Safety-Monitoring-Wall root layout).
-      // Use ?mediaBase=media/ if your .mp4 files live in a subfolder named media.
-      function resolveMediaBasePath(up) {
-        if (!up || !up.has('mediaBase')) return '';
-        var base = up.get('mediaBase') || '';
-        if (!base) return '';
-        return /\/$/.test(base) ? base : base + '/';
-      }
-      var mediaBasePath = resolveMediaBasePath(urlParams);
-      var defaultSlot1Video = mediaBasePath + encodeURIComponent('MDX3484 Camera 02 2026-03-24 13_42_32.mp4');
-      var defaultSlot2Video = mediaBasePath + encodeURIComponent('MDX3588DC Cam01 -NW camera South view 2026-03-24 13_51_12.mp4');
-      var defaultSlot3Video = mediaBasePath + encodeURIComponent('MDX3588DC Cam01 -NW camera South view 2026-03-24 13_59_09.mp4');
-      var defaultSlot4Video = mediaBasePath + encodeURIComponent('MDX3588DC Cam02 -NW camera East view 2026-03-24 14_05_40.mp4');
+      var defaultSlot1Video = window.resolveProsafeMediaUrl('MDX3484 Camera 02 2026-03-24 13_42_32.mp4');
+      var defaultSlot2Video = window.resolveProsafeMediaUrl('MDX3588DC Cam01 -NW camera South view 2026-03-24 13_51_12.mp4');
+      var defaultSlot3Video = window.resolveProsafeMediaUrl('MDX3588DC Cam01 -NW camera South view 2026-03-24 13_59_09.mp4');
+      var defaultSlot4Video = window.resolveProsafeMediaUrl('MDX3588DC Cam02 -NW camera East view 2026-03-24 14_05_40.mp4');
       for (var i = 0; i < slotIndices.length; i++) {
         var idx = slotIndices[i];
         var url = urlParams.get('slot' + idx + 'url') || urlParams.get('slot' + idx);
